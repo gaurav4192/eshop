@@ -215,7 +215,7 @@ class _SearchState extends State<Search> with TickerProviderStateMixin {
             autofocus: true,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(0, 15.0, 0, 15.0),
-              hintText: 'Search',
+              hintText: getTranslated(context, 'SEARCH_LBL'),
               hintStyle: TextStyle(color: colors.primary.withOpacity(0.5)),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: colors.white),

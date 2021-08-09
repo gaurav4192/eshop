@@ -234,7 +234,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         ));
   }
 
-  List<Widget> getLngList() {
+  List<Widget> getLngList(BuildContext ctx) {
     return languageList
         .asMap()
         .map(
@@ -245,7 +245,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                   if (mounted)
                     setState(() {
                       selectLan = index;
-                      _changeLan(langCode[index]);
+                      _changeLan(langCode[index],ctx);
                     });
                 },
                 child: Padding(
@@ -308,10 +308,10 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         .toList();
   }
 
-  void _changeLan(String language) async {
+  void _changeLan(String language, BuildContext ctx) async {
     Locale _locale = await setLocale(language);
 
-    MyApp.setLocale(context, _locale);
+    MyApp.setLocale(ctx, _locale);
   }
 
   _showDialog() async {
@@ -804,7 +804,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                     child: SingleChildScrollView(
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: getLngList()),
+                          children: getLngList(context)),
                     ),
                   ),
                 ],
@@ -815,6 +815,11 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
   }
 
   themeDialog() async {
+    themeList = [
+      getTranslated(context, 'SYSTEM_DEFAULT'),
+      getTranslated(context, 'LIGHT_THEME'),
+      getTranslated(context, 'DARK_THEME')
+    ];
     await dialogAnimate(context,
         StatefulBuilder(builder: (BuildContext context, StateSetter setStater) {
       isDarkTheme = Theme.of(context).brightness == Brightness.dark;
@@ -841,7 +846,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                 child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: themeListView(),
+                children: themeListView(context),
               ),
             )),
           ],
@@ -850,7 +855,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
     }));
   }
 
-  List<Widget> themeListView() {
+  List<Widget> themeListView(BuildContext ctx) {
     return themeList
         .asMap()
         .map(
@@ -858,7 +863,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
               index,
               InkWell(
                 onTap: () {
-                  _updateState(index);
+                  _updateState(index,ctx);
                 },
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5),
@@ -894,7 +899,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                               ),
                               child: Text(
                                 themeList[index],
-                                style: Theme.of(this.context)
+                                style: Theme.of(ctx)
                                     .textTheme
                                     .subtitle1
                                     .copyWith(color: colors.lightBlack),
@@ -919,16 +924,22 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         .toList();
   }
 
-  _updateState(int position) {
+  _updateState(int position, BuildContext ctx) {
     curTheme = position;
-    onThemeChanged(themeList[position]);
+
+
+    onThemeChanged(themeList[position],ctx);
   }
 
   void onThemeChanged(
-    String value,
+    String value, BuildContext ctx,
   ) async {
-    if (value == getTranslated(context, 'SYSTEM_DEFAULT')) {
+
+    if (value == getTranslated(ctx, 'SYSTEM_DEFAULT')) {
       themeNotifier.setThemeMode(ThemeMode.system);
+
+
+
       var brightness = SchedulerBinding.instance.window.platformBrightness;
       if (mounted)
         setState(() {
@@ -938,14 +949,15 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
           else
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
         });
-    } else if (value == getTranslated(context, 'LIGHT_THEME')) {
+    } else if (value == getTranslated(ctx, 'LIGHT_THEME')) {
+
       themeNotifier.setThemeMode(ThemeMode.light);
       if (mounted)
         setState(() {
           isDark = false;
           SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
         });
-    } else if (value == getTranslated(context, 'DARK_THEME')) {
+    } else if (value == getTranslated(ctx, 'DARK_THEME')) {
       themeNotifier.setThemeMode(ThemeMode.dark);
       if (mounted)
         setState(() {

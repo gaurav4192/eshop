@@ -566,35 +566,35 @@ class StateOrder extends State<OrderDetail> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsetsDirectional.only(start: 15.0, end: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(getTranslated(context, 'PAYABLE') + " " + ":",
-                        style: Theme.of(context)
-                            .textTheme
-                            .button
-                            .copyWith(color: colors.lightBlack2)),
-                    Text(CUR_CURRENCY + " " + widget.model.payable,
-                        style: Theme.of(context)
-                            .textTheme
-                            .button
-                            .copyWith(color: colors.lightBlack2))
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsetsDirectional.only(start: 15.0, end: 15.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: [
+              //       Text(getTranslated(context, 'PAYABLE') + " " + ":",
+              //           style: Theme.of(context)
+              //               .textTheme
+              //               .button
+              //               .copyWith(color: colors.lightBlack2)),
+              //       Text(CUR_CURRENCY + " " + widget.model.payable,
+              //           style: Theme.of(context)
+              //               .textTheme
+              //               .button
+              //               .copyWith(color: colors.lightBlack2))
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: EdgeInsetsDirectional.only(
                     start: 15.0, end: 15.0, top: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(getTranslated(context, 'TOTAL_PRICE') + " " + ":",
+                    Text(getTranslated(context, 'PAYABLE') + " " + ":",
                         style: Theme.of(context).textTheme.button.copyWith(
                             color: colors.lightBlack,
                             fontWeight: FontWeight.bold)),
-                    Text(CUR_CURRENCY + " " + widget.model.total,
+                    Text(CUR_CURRENCY + " " + widget.model.payable,
                         style: Theme.of(context).textTheme.button.copyWith(
                             color: colors.lightBlack,
                             fontWeight: FontWeight.bold))
@@ -668,7 +668,7 @@ class StateOrder extends State<OrderDetail> with TickerProviderStateMixin {
       val = orderItem.varient_values.split(',');
     }
 
-    print("system****${model.payMethod}");
+
 
     return Card(
         elevation: 0,
@@ -1482,13 +1482,14 @@ class StateOrder extends State<OrderDetail> with TickerProviderStateMixin {
         bool error = getdata["error"];
         String msg = getdata['message'];
 
-        setSnackbar(msg);
+        
 
         files.clear();
         if (mounted)
           setState(() {
             _isProgress = false;
           });
+          setSnackbar(msg);
       } on TimeoutException catch (_) {
         setSnackbar(getTranslated(context, 'somethingMSg'));
       }

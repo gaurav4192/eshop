@@ -157,6 +157,8 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
   void dispose() {
     buttonController.dispose();
     for (int i = 0; i < _controller.length; i++) _controller[i].dispose();
+
+    if(_razorpay!=null)
     _razorpay.clear();
     super.dispose();
   }
@@ -2449,8 +2451,7 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
         Response response =
             await post(placeOrderApi, body: parameter, headers: headers)
                 .timeout(Duration(seconds: timeOut));
-
-        _placeOrder = true;
+       _placeOrder = true;
         if (response.statusCode == 200) {
           var getdata = json.decode(response.body);
           bool error = getdata["error"];
@@ -3023,6 +3024,8 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
             await post(validatePromoApi, body: parameter, headers: headers)
                 .timeout(Duration(seconds: timeOut));
 
+
+
         if (response.statusCode == 200) {
           var getdata = json.decode(response.body);
 
@@ -3043,6 +3046,10 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
             promoAmt = 0;
             promocode = null;
             promoC.clear();
+            var data = getdata["data"];
+
+            totalPrice = double.parse(data["final_total"]) + delCharge;
+
             setSnackbar(msg, _checkscaffoldKey);
           }
           if (isUseWallet) {
@@ -3053,6 +3060,7 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
             isPayLayShow = true;
             _isProgress = false;
             selectedMethod = null;
+
             if (mounted && check) checkoutState(() {});
             setState(() {});
           } else {
@@ -3232,11 +3240,13 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold)),
                         onPressed: () {
+                          Navigator.pop(context);
                           setState(() {
                             _isProgress = true;
+
                           });
                           checkoutState(() {});
-                          Navigator.pop(context);
+
                           placeOrder('');
                         })
                   ],
@@ -3263,7 +3273,7 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
             await post(checkCartDelApi, body: parameter, headers: headers)
                 .timeout(Duration(seconds: timeOut));
 
-print("response del****${response.body.toString()}");
+
 
         var getdata = json.decode(response.body);
 

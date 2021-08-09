@@ -125,7 +125,8 @@ class StateFav extends State<Favorite> with TickerProviderStateMixin {
   }
 
   Widget listItem(int index) {
-    if (index < favList.length) {
+      if (index < favList.length  &&  favList[index].productList!=null &&favList[index].productList.length>0) {
+  
       int selectedPos = 0;
       for (int i = 0;
           i < favList[index].productList[0].prVarientList.length;

@@ -42,14 +42,18 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
       altMob,
       type = "Home",
       isDefault;
-  bool checkedDefault = false, isArea = true;
+  bool checkedDefault = false, isArea = false;
   bool _isProgress = false;
+  StateSetter areaState, cityState;
 
   //bool _isLoading = false;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<User> cityList = [];
   List<User> areaList = [];
+  List<User> areaSearchList = [];
+  List<User> citySearchLIst = [];
+  bool cityLoading = true, areaLoading = true;
   TextEditingController nameC,
       mobileC,
       pincodeC,
@@ -69,6 +73,10 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
       landFocus,
       locationFocus = FocusNode();
   User selArea;
+  int selAreaPos = -1, selCityPos = -1;
+  final TextEditingController _areaController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +96,14 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
     ));
     callApi();
 
+    _areaController.addListener(() {
+      areaSearch(_areaController.text);
+    });
+
+    _cityController.addListener(() {
+      citySearch(_cityController.text);
+    });
+
     mobileC = new TextEditingController();
     nameC = new TextEditingController();
     altMobC = new TextEditingController();
@@ -99,7 +115,6 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
 
     if (widget.update) {
       User item = addressList[widget.index];
-
 
       mobileC.text = item.mobile;
       nameC.text = item.name;
@@ -313,79 +328,325 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
     );
   }
 
-  setCities() {
-    return DropdownButtonFormField(
-      iconEnabledColor: colors.fontColor,
-      isDense: true,
-      hint: new Text(
-        getTranslated(context, 'CITYSELECT_LBL'),
-      ),
-      value: city,
-      style: Theme.of(context)
-          .textTheme
-          .subtitle2
-          .copyWith(color: colors.fontColor),
-      onChanged: (String newValue) {
-        if (mounted)
-          setState(() {
-            city = newValue;
-            isArea = false;
+  areaDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStater) {
+            areaState = setStater;
+            return AlertDialog(
+              contentPadding: const EdgeInsets.all(0.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 20.0, 0, 0),
+                      child: Text(
+                        getTranslated(context, 'AREASELECT_LBL'),
+                        style: Theme.of(this.context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(color: colors.fontColor),
+                      )),
+                  TextField(
+                    controller: _areaController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(0, 15.0, 0, 15.0),
+                      prefixIcon:
+                          Icon(Icons.search, color: colors.primary, size: 17),
+                      hintText: getTranslated(context, 'SEARCH_LBL'),
+                      hintStyle:
+                          TextStyle(color: colors.primary.withOpacity(0.5)),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colors.white),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colors.white),
+                      ),
+                    ),
+                    // onChanged: (query) => updateSearchQuery(query),
+                  ),
+                  Divider(color: colors.lightBlack),
+                  areaLoading
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 50.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : (areaSearchList.length > 0)
+                          ? Flexible(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: getAreaList()),
+                              ),
+                            )
+                          : Padding(
+                            padding: const EdgeInsets.symmetric(vertical:20.0),
+                            child: getNoItem(context),
+                          )
+                ],
+              ),
+            );
           });
-        getArea(city, true);
-      },
-      items: cityList.map((User user) {
-        return DropdownMenuItem<String>(
-          value: user.id,
-          child: Text(
-            user.name,
+        });
+  }
+
+  cityDialog() {
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStater) {
+            cityState = setStater;
+            return AlertDialog(
+              contentPadding: const EdgeInsets.all(0.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 20.0, 0, 0),
+                      child: Text(
+                        getTranslated(context, 'CITYSELECT_LBL'),
+                        style: Theme.of(this.context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(color: colors.fontColor),
+                      )),
+                  TextField(
+                    controller: _cityController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(0, 15.0, 0, 15.0),
+                      prefixIcon:
+                          Icon(Icons.search, color: colors.primary, size: 17),
+                      hintText: getTranslated(context, 'SEARCH_LBL'),
+                      hintStyle:
+                          TextStyle(color: colors.primary.withOpacity(0.5)),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colors.white),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colors.white),
+                      ),
+                    ),
+                    // onChanged: (query) => updateSearchQuery(query),
+                  ),
+                  Divider(color: colors.lightBlack),
+                  cityLoading
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 50.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : (citySearchLIst.length > 0)
+                          ? Flexible(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: getCityList()),
+                              ),
+                            )
+                          : Padding(
+                            padding: const EdgeInsets.symmetric(vertical:20.0),
+                            child: getNoItem(context),
+                          )
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  getAreaList() {
+    return areaSearchList
+        .asMap()
+        .map(
+          (index, element) => MapEntry(
+              index,
+              InkWell(
+                  onTap: () {
+                    if (mounted)
+                      setState(() {
+                        //selectedDelBoy = index;
+                        selAreaPos = index;
+                        Navigator.of(context).pop();
+
+                        selArea = areaSearchList[selAreaPos];
+                        area = selArea.id;
+                        pincodeC.text = selArea.pincode;
+                      });
+                  },
+                  child: Container(
+                    width: double.maxFinite,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        areaSearchList[index].name,
+                      ),
+                    ),
+                  ))),
+        )
+        .values
+        .toList();
+  }
+
+  getCityList() {
+    return citySearchLIst
+        .asMap()
+        .map(
+          (index, element) => MapEntry(
+              index,
+              InkWell(
+                  onTap: () {
+                    if (mounted)
+                      setState(() {
+                        isArea = false;
+                        selCityPos = index;
+                        selAreaPos = null;
+                        selArea = null;
+                        pincodeC.text = "";
+                        Navigator.of(context).pop();
+                      });
+                    city = citySearchLIst[selCityPos].id;
+
+                    getArea(city, true);
+                  },
+                  child: Container(
+                    width: double.maxFinite,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        citySearchLIst[index].name,
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ),
+                  ))),
+        )
+        .values
+        .toList();
+  }
+
+  setCities() {
+    return GestureDetector(
+      child: InputDecorator(
+          decoration: InputDecoration(
+            isDense: true,
           ),
-        );
-      }).toList(),
-      decoration: InputDecoration(
-        isDense: true,
-        contentPadding: new EdgeInsets.symmetric(vertical: 5),
-      ),
+          child: Text(
+              selCityPos != null && selCityPos != -1
+                  ? citySearchLIst[selCityPos].name
+                  : getTranslated(context, 'CITYSELECT_LBL'),
+              style: TextStyle(
+                  color: selCityPos != null ? colors.fontColor : Colors.grey))),
+      onTap: () {
+        cityDialog();
+      },
     );
+
+    // return DropdownButtonFormField(
+    //   iconEnabledColor: colors.fontColor,
+    //   isDense: true,
+    //   hint: new Text(
+    //     getTranslated(context, 'CITYSELECT_LBL'),
+    //   ),
+    //   value: city,
+    //   style: Theme.of(context)
+    //       .textTheme
+    //       .subtitle2
+    //       .copyWith(color: colors.fontColor),
+    //   onChanged: (String newValue) {
+    //     if (mounted)
+    //       setState(() {
+    //         city = newValue;
+    //         isArea = false;
+    //       });
+    //     getArea(city, true);
+    //   },
+    //   items: cityList.map((User user) {
+    //     return DropdownMenuItem<String>(
+    //       value: user.id,
+    //       child: Text(
+    //         user.name,
+    //       ),
+    //     );
+    //   }).toList(),
+    //   decoration: InputDecoration(
+    //     isDense: true,
+    //     contentPadding: new EdgeInsets.symmetric(vertical: 5),
+    //   ),
+    // );
   }
 
   setArea() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: DropdownButtonFormField(
-        iconEnabledColor: colors.fontColor,
-        isDense: true,
-        style: Theme.of(context)
-            .textTheme
-            .subtitle2
-            .copyWith(color: colors.fontColor),
-        hint: new Text(
-          getTranslated(context, 'AREASELECT_LBL'),
-        ),
-        value: selArea,
-        onChanged: isArea
-            ? (newValue) {
-                if (mounted)
-                  setState(() {
-                    selArea = newValue;
-                    area = newValue.id;
-                    pincodeC.text = newValue.pincode;
-                  });
-              }
-            : null,
-        items: areaList.map((User user) {
-          return DropdownMenuItem<User>(
-            value: user,
-            child: Text(
-              user.name,
-            ),
-          );
-        }).toList(),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: new EdgeInsets.symmetric(vertical: 5),
-        ),
-      ),
+    return GestureDetector(
+      child: InputDecorator(
+          decoration: InputDecoration(
+            isDense: true,
+          ),
+          child: Text(
+              selAreaPos != null && selAreaPos != -1
+                  ? areaSearchList[selAreaPos].name
+                  : getTranslated(context, 'AREASELECT_LBL'),
+              style: TextStyle(
+                  color: selAreaPos != null ? colors.fontColor : Colors.grey))),
+      onTap: isArea
+          ? () {
+              areaDialog();
+            }
+          : null,
     );
+
+    // return Padding(
+    //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+    //   child: DropdownButtonFormField(
+    //     iconEnabledColor: colors.fontColor,
+    //     isDense: true,
+    //     style: Theme.of(context)
+    //         .textTheme
+    //         .subtitle2
+    //         .copyWith(color: colors.fontColor),
+    //     hint: new Text(
+    //       getTranslated(context, 'AREASELECT_LBL'),
+    //     ),
+    //     value: selArea,
+    //     onChanged: isArea
+    //         ? (newValue) {
+    //             if (mounted)
+    //               setState(() {
+    //                 selArea = newValue;
+    //                 area = newValue.id;
+    //                 pincodeC.text = newValue.pincode;
+    //               });
+    //           }
+    //         : null,
+    //     items: areaList.map((User user) {
+    //       return DropdownMenuItem<User>(
+    //         value: user,
+    //         child: Text(
+    //           user.name,
+    //         ),
+    //       );
+    //     }).toList(),
+    //     decoration: InputDecoration(
+    //       isDense: true,
+    //       contentPadding: new EdgeInsets.symmetric(vertical: 5),
+    //     ),
+    //   ),
+    // );
   }
 
   setAddress() {
@@ -506,6 +767,7 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
       Response response = await post(getCitiesApi, headers: headers)
           .timeout(Duration(seconds: timeOut));
 
+
       var getdata = json.decode(response.body);
       bool error = getdata["error"];
       String msg = getdata["message"];
@@ -514,10 +776,23 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
 
         cityList =
             (data as List).map((data) => new User.fromJson(data)).toList();
+
+        citySearchLIst.addAll(cityList);
       } else {
         setSnackbar(msg);
       }
-      if (mounted) if (mounted) setState(() {});
+      cityLoading = false;
+      if (cityState != null) cityState(() {});
+      if (mounted) setState(() {});
+
+      if (widget.update) {
+        selCityPos = citySearchLIst
+            .indexWhere((f) => f.id == addressList[widget.index].cityId);
+
+        if (selCityPos == -1) selCityPos = null;
+      }
+
+      //print("get positon")
     } on TimeoutException catch (_) {
       setSnackbar(getTranslated(context, 'somethingMSg'));
     }
@@ -538,7 +813,6 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
       bool error = getdata["error"];
       String msg = getdata["message"];
 
-
       if (!error) {
         var data = getdata["data"];
         areaList.clear();
@@ -549,21 +823,38 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
         areaList =
             (data as List).map((data) => new User.fromJson(data)).toList();
 
-     
-        for (User item in addressList) {
-          // dynamic temp = y.where((data) => data['id'] == action);
+        areaSearchList.addAll(areaList);
 
-          areaList.where((i) => i.id == item.areaId).map((obj) {
-            selArea = obj;
-          }).toList();
+        // for (User item in addressList) {
+        // dynamic temp = y.where((data) => data['id'] == action);
+
+        // areaSearchList.where((i) => i.id == item.areaId).map((obj) {
+        //
+        //   print("pos*****${i}");
+        //   selArea = obj;
+        //   selAreaPos =i;
+        // }).toList();
+        //
+
+        for (User item in addressList) {
+          for (int i = 0; i < areaSearchList.length; i++) {
+            if (areaSearchList[i].id == item.areaId) {
+
+              selArea = areaSearchList[i];
+              selAreaPos = i;
+            }
+          }
         }
       } else {
         setSnackbar(msg);
       }
-      if (mounted) if (mounted)
+      areaLoading = false;
+
+      if (mounted)
         setState(() {
           isArea = true;
         });
+      if (areaState != null) areaState(() {});
     } on TimeoutException catch (_) {
       setSnackbar(getTranslated(context, 'somethingMSg'));
     }
@@ -680,8 +971,7 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
               headers: headers)
           .timeout(Duration(seconds: timeOut));
 
-
-     if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
         var getdata = json.decode(response.body);
 
         bool error = getdata["error"];
@@ -991,6 +1281,32 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
         showCircularProgress(_isProgress, colors.primary)
       ],
     );
+  }
+
+  Future<void> areaSearch(String searchText) async {
+    areaSearchList.clear();
+    for (int i = 0; i < areaList.length; i++) {
+      User map = areaList[i];
+
+      if (map.name.toLowerCase().contains(searchText)) {
+        areaSearchList.add(map);
+      }
+    }
+
+    if (mounted) areaState(() {});
+  }
+
+  Future<void> citySearch(String searchText) async {
+    citySearchLIst.clear();
+    for (int i = 0; i < cityList.length; i++) {
+      User map = cityList[i];
+
+      if (map.name.toLowerCase().contains(searchText)) {
+        citySearchLIst.add(map);
+      }
+    }
+
+    if (mounted) cityState(() {});
   }
 
   Future<void> getCurrentLoc() async {
