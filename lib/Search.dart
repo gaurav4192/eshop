@@ -91,6 +91,7 @@ class _SearchState extends State<Search> with TickerProviderStateMixin {
         notificationoffset = 0;
         notificationisnodata = false;
         buildResult = false;
+
         if (query.trim().length > 0) {
           if (_debounce?.isActive ?? false) _debounce.cancel();
           _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -102,6 +103,7 @@ class _SearchState extends State<Search> with TickerProviderStateMixin {
             }
           });
         }
+
       }
     });
 

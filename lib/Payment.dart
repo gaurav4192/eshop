@@ -215,6 +215,7 @@ class StatePayment extends State<Payment> with TickerProviderStateMixin {
                                                   remWalBal =
                                                       double.parse(CUR_BALANCE);
                                                   payMethod = null;
+
                                                   usedBal = 0;
                                                   isPayLayShow = true;
                                                 }

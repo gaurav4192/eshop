@@ -987,8 +987,8 @@ class StateItem extends State<ProductDetail> with TickerProviderStateMixin {
                           padding: const EdgeInsets.all(5.0),
                           child: Text(
                             outOfStock == true
-                                ? 'Out of Stock'
-                                : "This varient doesn't available.",
+                                ? getTranslated(context, 'OUT_OF_STOCK_LBL')
+                                : getTranslated(context, 'VARIANT_NOT_AVAIL'),
                             style: TextStyle(color: Colors.red),
                           ),
                         ))
@@ -1472,15 +1472,19 @@ class StateItem extends State<ProductDetail> with TickerProviderStateMixin {
                         ),
                       )
                     : Container(),
-                productList.length > 0
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          getTranslated(context, 'MORE_PRODUCT'),
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                      )
-                    : Container(),
+                Column(
+                  children: [
+                    productList.length > 0
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              getTranslated(context, 'MORE_PRODUCT'),
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
                 GridView.count(
                     controller: notificationcontroller,
                     padding: EdgeInsetsDirectional.only(top: 5),

@@ -5,7 +5,7 @@ class colors {
   colors._();
 
   static const MaterialColor primary_app = const MaterialColor(
-    0xffFE7E7B,
+    0xffFC6A57,
     const <int, Color>{
       50: primary,
       100: primary,
@@ -20,8 +20,11 @@ class colors {
     },
   );
 
-  static const Color primary = Color(0xffFE7E7B);
-  static const Color secondary = Color(0xffFDCD96);
+  static const Color primary = Color(0xffFC6A57);
+  static const Color secondary = Color(0xffFDC994);
+
+  static Color get lightWhite =>
+      ISDARK == "true" ? darkColor : const Color(0xffEEF2F9);
 
   static Color get fontColor => ISDARK == "true" ? secondary : const Color(0xff4543C1);
   static const Color grad1Color = Color(0xffFFBD69);
@@ -37,8 +40,7 @@ class colors {
   static Color get lightBlack2 =>
       ISDARK == "true" ? white70 : const Color(0xff999999);
 
-  static Color get lightWhite =>
-      ISDARK == "true" ? darkColor : const Color(0xffEEF2F9);
+
 
   static const Color darkColor = Color(0xff202844);
   static const Color darkColor2 = Color(0xff273152);

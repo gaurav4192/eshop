@@ -381,10 +381,9 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
                         )
                       : (areaSearchList.length > 0)
                           ? Flexible(
+
                               child: SingleChildScrollView(
                                 child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: getAreaList()),
                               ),
                             )
@@ -496,6 +495,7 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         areaSearchList[index].name,
+                        style: Theme.of(context).textTheme.subtitle2,
                       ),
                     ),
                   ))),
@@ -748,7 +748,7 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
   Future<void> callApi() async {
     bool avail = await isNetworkAvailable();
     if (avail) {
-      getCities();
+       await getCities();
       if (widget.update) {
         getArea(addressList[widget.index].cityId, false);
       }
@@ -808,6 +808,7 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
           await post(getAreaByCityApi, body: data, headers: headers)
               .timeout(Duration(seconds: timeOut));
 
+
       var getdata = json.decode(response.body);
 
       bool error = getdata["error"];
@@ -850,11 +851,12 @@ class StateAddress extends State<AddAddress> with TickerProviderStateMixin {
       }
       areaLoading = false;
 
-      if (mounted)
+      if (mounted) {
         setState(() {
           isArea = true;
         });
-      if (areaState != null) areaState(() {});
+        if (areaState != null) areaState(() {});
+      }
     } on TimeoutException catch (_) {
       setSnackbar(getTranslated(context, 'somethingMSg'));
     }

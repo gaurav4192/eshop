@@ -38,7 +38,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
   ScrollController controller = new ScrollController();
   Animation buttonSqueezeanimation;
   AnimationController buttonController;
-
+ // Timer _debounce;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
   String sortBy = 'p.id', orderBy = "DESC";
@@ -492,26 +492,31 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                             imageErrorBuilder: (context, error, stackTrace) =>
                                 erroWidget(80),
                           ),
-
-
- Positioned.fill(child:
-       Align(
-                    alignment: AlignmentDirectional.center,
-                    child: widget.section_model.productList[index].availability == "0"
-                        ? Container(
-                          color: colors.white70,
-                         // width: double.maxFinite,
-                          padding: EdgeInsets.all(2),
-                          child: Text(getTranslated(context, 'OUT_OF_STOCK_LBL'),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  .copyWith(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,),textAlign: TextAlign.center,),
-                        )
-                        : Container(),
-                  )),
+                          Positioned.fill(
+                              child: Align(
+                            alignment: AlignmentDirectional.center,
+                            child: widget.section_model.productList[index]
+                                        .availability ==
+                                    "0"
+                                ? Container(
+                                    color: colors.white70,
+                                    // width: double.maxFinite,
+                                    padding: EdgeInsets.all(2),
+                                    child: Text(
+                                      getTranslated(
+                                          context, 'OUT_OF_STOCK_LBL'),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .caption
+                                          .copyWith(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )
+                                : Container(),
+                          )),
                         ],
                       )),
                 ),
@@ -534,8 +539,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            widget.section_model.productList[index]
-                                    .isFavLoading
+                            widget.section_model.productList[index].isFavLoading
                                 ? Container(
                                     height: 15,
                                     width: 15,
@@ -550,9 +554,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8.0, vertical: 3),
                                       child: Icon(
-                                        widget
-                                                    .section_model
-                                                    .productList[index]
+                                        widget.section_model.productList[index]
                                                     .isFav ==
                                                 "0"
                                             ? Icons.favorite_border
@@ -563,9 +565,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                     ),
                                     onTap: () {
                                       if (CUR_USERID != null) {
-                                        widget
-                                                    .section_model
-                                                    .productList[index]
+                                        widget.section_model.productList[index]
                                                     .isFav ==
                                                 "0"
                                             ? _setFav(index)
@@ -593,11 +593,8 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                       0
                                   ? CUR_CURRENCY +
                                       "" +
-                                      widget
-                                          .section_model
-                                          .productList[index]
-                                          .prVarientList[model.selVarient]
-                                          .price
+                                      widget.section_model.productList[index]
+                                          .prVarientList[model.selVarient].price
                                   : "",
                               style: Theme.of(context)
                                   .textTheme
@@ -610,8 +607,8 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                         ),
                         model.prVarientList[model.selVarient].attr_name !=
                                     null &&
-                                model.prVarientList[model.selVarient]
-                                    .attr_name.isNotEmpty
+                                model.prVarientList[model.selVarient].attr_name
+                                    .isNotEmpty
                             ? ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
@@ -625,8 +622,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle2
-                                            .copyWith(
-                                                color: colors.lightBlack),
+                                            .copyWith(color: colors.lightBlack),
                                       ),
                                     ),
                                     Padding(
@@ -690,17 +686,15 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                                   color: colors.lightWhite,
                                                   borderRadius:
                                                       BorderRadius.all(
-                                                          Radius.circular(
-                                                              3))),
+                                                          Radius.circular(3))),
                                             ),
                                             onTap: () {
                                               if (_isProgress == false &&
                                                   (int.parse(model
-                                                          .prVarientList[model
-                                                              .selVarient]
+                                                          .prVarientList[
+                                                              model.selVarient]
                                                           .cartCount)) >
-                                                      0)
-                                                removeFromCart(index);
+                                                      0) removeFromCart(index);
                                             },
                                           ),
                                           Container(
@@ -722,22 +716,22 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                                     focusedBorder:
                                                         OutlineInputBorder(
                                                       borderSide: BorderSide(
-                                                          color: colors
-                                                              .fontColor,
+                                                          color:
+                                                              colors.fontColor,
                                                           width: 0.5),
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(5.0),
+                                                          BorderRadius.circular(
+                                                              5.0),
                                                     ),
                                                     enabledBorder:
                                                         OutlineInputBorder(
                                                       borderSide: BorderSide(
-                                                          color: colors
-                                                              .fontColor,
+                                                          color:
+                                                              colors.fontColor,
                                                           width: 0.5),
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(5.0),
+                                                          BorderRadius.circular(
+                                                              5.0),
                                                     ),
                                                   ),
                                                 ),
@@ -772,8 +766,7 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                           GestureDetector(
                                             child: Container(
                                               padding: EdgeInsets.all(2),
-                                              margin:
-                                                  EdgeInsets.only(left: 8),
+                                              margin: EdgeInsets.only(left: 8),
                                               child: Icon(
                                                 Icons.add,
                                                 size: 14,
@@ -783,17 +776,15 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                                                   color: colors.lightWhite,
                                                   borderRadius:
                                                       BorderRadius.all(
-                                                          Radius.circular(
-                                                              3))),
+                                                          Radius.circular(3))),
                                             ),
                                             onTap: () {
                                               if (_isProgress == false)
                                                 addToCart(
                                                     index,
                                                     ((int.parse(model
-                                                                .prVarientList[
-                                                                    model
-                                                                        .selVarient]
+                                                                .prVarientList[model
+                                                                    .selVarient]
                                                                 .cartCount)) +
                                                             int.parse(model
                                                                 .qtyStepSize))
@@ -969,104 +960,105 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
   }
 
   void sortDialog() {
-    dialogAnimate(context,  ButtonBarTheme(
-            data: ButtonBarThemeData(
-              alignment: MainAxisAlignment.center,
-            ),
-            child: new AlertDialog(
-                elevation: 2.0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                contentPadding: const EdgeInsets.all(0.0),
-                content: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Padding(
-                      padding:
-                          EdgeInsetsDirectional.only(top: 19.0, bottom: 16.0),
-                      child: Text(
-                        getTranslated(context, 'SORT_BY'),
-                        style: Theme.of(context).textTheme.headline6,
-                      )),
-                  Divider(color: colors.lightBlack),
-                  TextButton(
-                      child: Text(getTranslated(context, 'TOP_RATED'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .subtitle1
-                              .copyWith(color: colors.lightBlack)),
-                      onPressed: () {
-                        sortBy = '';
-                        orderBy = 'DESC';
-
-                        clearList("1");
-                        Navigator.pop(context, 'option 1');
-                      }),
-                  Divider(color: colors.lightBlack),
-                  TextButton(
-                      child: Text(getTranslated(context, 'F_NEWEST'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .subtitle1
-                              .copyWith(color: colors.lightBlack)),
-                      onPressed: () {
-                        sortBy = 'p.date_added';
-                        orderBy = 'DESC';
-
-                        clearList("0");
-                        Navigator.pop(context, 'option 1');
-                      }),
-                  Divider(color: colors.lightBlack),
-                  TextButton(
-                      child: Text(
-                        getTranslated(context, 'F_OLDEST'),
+    dialogAnimate(
+        context,
+        ButtonBarTheme(
+          data: ButtonBarThemeData(
+            alignment: MainAxisAlignment.center,
+          ),
+          child: new AlertDialog(
+              elevation: 2.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              contentPadding: const EdgeInsets.all(0.0),
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding:
+                        EdgeInsetsDirectional.only(top: 19.0, bottom: 16.0),
+                    child: Text(
+                      getTranslated(context, 'SORT_BY'),
+                      style: Theme.of(context).textTheme.headline6,
+                    )),
+                Divider(color: colors.lightBlack),
+                TextButton(
+                    child: Text(getTranslated(context, 'TOP_RATED'),
                         style: Theme.of(context)
                             .textTheme
                             .subtitle1
-                            .copyWith(color: colors.lightBlack),
-                      ),
-                      onPressed: () {
-                        sortBy = 'p.date_added';
-                        orderBy = 'ASC';
+                            .copyWith(color: colors.lightBlack)),
+                    onPressed: () {
+                      sortBy = '';
+                      orderBy = 'DESC';
 
-                        clearList("0");
-                        Navigator.pop(context, 'option 2');
-                      }),
-                  Divider(color: colors.lightBlack),
-                  TextButton(
-                      child: new Text(
-                        getTranslated(context, 'F_LOW'),
+                      clearList("1");
+                      Navigator.pop(context, 'option 1');
+                    }),
+                Divider(color: colors.lightBlack),
+                TextButton(
+                    child: Text(getTranslated(context, 'F_NEWEST'),
                         style: Theme.of(context)
                             .textTheme
                             .subtitle1
-                            .copyWith(color: colors.lightBlack),
-                      ),
-                      onPressed: () {
-                        sortBy = 'pv.price';
-                        orderBy = 'ASC';
+                            .copyWith(color: colors.lightBlack)),
+                    onPressed: () {
+                      sortBy = 'p.date_added';
+                      orderBy = 'DESC';
 
-                        clearList("0");
-                        Navigator.pop(context, 'option 3');
-                      }),
-                  Divider(color: colors.lightBlack),
-                  Padding(
-                      padding: EdgeInsetsDirectional.only(bottom: 5.0),
-                      child: TextButton(
-                          child: new Text(
-                            getTranslated(context, 'F_HIGH'),
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle1
-                                .copyWith(color: colors.lightBlack),
-                          ),
-                          onPressed: () {
-                            sortBy = 'pv.price';
-                            orderBy = 'DESC';
+                      clearList("0");
+                      Navigator.pop(context, 'option 1');
+                    }),
+                Divider(color: colors.lightBlack),
+                TextButton(
+                    child: Text(
+                      getTranslated(context, 'F_OLDEST'),
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(color: colors.lightBlack),
+                    ),
+                    onPressed: () {
+                      sortBy = 'p.date_added';
+                      orderBy = 'ASC';
 
-                            clearList("0");
-                            Navigator.pop(context, 'option 4');
-                          })),
-                ])),
-          ));
-        
+                      clearList("0");
+                      Navigator.pop(context, 'option 2');
+                    }),
+                Divider(color: colors.lightBlack),
+                TextButton(
+                    child: new Text(
+                      getTranslated(context, 'F_LOW'),
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(color: colors.lightBlack),
+                    ),
+                    onPressed: () {
+                      sortBy = 'pv.price';
+                      orderBy = 'ASC';
+
+                      clearList("0");
+                      Navigator.pop(context, 'option 3');
+                    }),
+                Divider(color: colors.lightBlack),
+                Padding(
+                    padding: EdgeInsetsDirectional.only(bottom: 5.0),
+                    child: TextButton(
+                        child: new Text(
+                          getTranslated(context, 'F_HIGH'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle1
+                              .copyWith(color: colors.lightBlack),
+                        ),
+                        onPressed: () {
+                          sortBy = 'pv.price';
+                          orderBy = 'DESC';
+
+                          clearList("0");
+                          Navigator.pop(context, 'option 4');
+                        })),
+              ])),
+        ));
   }
 
   void filterDialog() {
@@ -1320,13 +1312,23 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
     if (controller.offset >= controller.position.maxScrollExtent &&
         !controller.position.outOfRange) {
       if (this.mounted) {
-        if (mounted)
+        setState(() {
+          isLoadingmore = true;
+          if (widget.section_model.offset < widget.section_model.totalItem)
+            getSection("0");
+        });
+      }
+
+
+
+        if (isLoadingmore) {
           setState(() {
             isLoadingmore = true;
             if (widget.section_model.offset < widget.section_model.totalItem)
               getSection("0");
           });
-      }
+        }
+
     }
   }
 
@@ -1398,17 +1400,21 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
                     alignment: AlignmentDirectional.center,
                     child: model.availability == "0"
                         ? Container(
-                          color: colors.white70,
-                          width: double.maxFinite,
-                          padding: EdgeInsets.all(2),
-                          child: Text(getTranslated(context, 'OUT_OF_STOCK_LBL'),
+                            color: colors.white70,
+                            width: double.maxFinite,
+                            padding: EdgeInsets.all(2),
+                            child: Text(
+                              getTranslated(context, 'OUT_OF_STOCK_LBL'),
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
                                   .copyWith(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,),textAlign: TextAlign.center,),
-                        )
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
                         : Container(),
                   ),
                   Card(
@@ -1726,65 +1732,75 @@ class StateSection extends State<SectionList> with TickerProviderStateMixin {
   Future<Null> getSection(String top) async {
     _isNetworkAvail = await isNetworkAvailable();
     if (_isNetworkAvail) {
-      try {
-        var parameter = {
-          PRODUCT_LIMIT: perPage.toString(),
-          PRODUCT_OFFSET: widget.section_model.productList.length.toString(),
-          SEC_ID: widget.section_model.id,
-          TOP_RETAED: top,
-          PSORT: sortBy,
-          PORDER: orderBy,
-        };
-        if (CUR_USERID != null) parameter[USER_ID] = CUR_USERID;
-        if (selId != null && selId != "") {
-          parameter[ATTRIBUTE_VALUE_ID] = selId;
-        }
-
-        Response response =
-            await post(getSectionApi, body: parameter, headers: headers)
-                .timeout(Duration(seconds: timeOut));
-        var getdata = json.decode(response.body);
-
-        bool error = getdata["error"];
-        String msg = getdata["message"];
-        if (!error) {
-          var data = getdata["data"];
-
-          offset = widget.section_model.productList.length;
-
-          total = int.parse(data[0]["total"]);
-
-          if (offset < total) {
-            List<SectionModel> temp = (data as List)
-                .map((data) => new SectionModel.fromJson(data))
-                .toList();
-            getAvailVarient(temp[0].productList);
-
-            offset = widget.section_model.offset + perPage;
-
-            widget.section_model.offset = offset;
-            widget.section_model.totalItem = total;
-          }
-        } else {
+      if (isLoadingmore) {
+        setState(() {
           isLoadingmore = false;
-          if (msg != 'Sections not found') setSnackbar(msg);
-        }
 
-        if (mounted)
-          setState(() {
-            _isLoading = false;
-          });
-      } on TimeoutException catch (_) {
-        setSnackbar(getTranslated(context, 'somethingMSg'));
-        if (mounted)
-          setState(() {
-            _isLoading = false;
-          });
+        });
+        try {
+          var parameter = {
+            PRODUCT_LIMIT: perPage.toString(),
+            PRODUCT_OFFSET: widget.section_model.productList.length.toString(),
+            SEC_ID: widget.section_model.id,
+            TOP_RETAED: top,
+            PSORT: sortBy,
+            PORDER: orderBy,
+          };
+          if (CUR_USERID != null) parameter[USER_ID] = CUR_USERID;
+          if (selId != null && selId != "") {
+            parameter[ATTRIBUTE_VALUE_ID] = selId;
+          }
+
+
+          Response response =
+          await post(getSectionApi, body: parameter, headers: headers)
+              .timeout(Duration(seconds: timeOut));
+          var getdata = json.decode(response.body);
+
+          bool error = getdata["error"];
+          String msg = getdata["message"];
+          if (!error) {
+            var data = getdata["data"];
+
+            offset = widget.section_model.productList.length;
+
+            total = int.parse(data[0]["total"]);
+
+            if (offset < total) {
+              List<SectionModel> temp = (data as List)
+                  .map((data) => new SectionModel.fromJson(data))
+                  .toList();
+              getAvailVarient(temp[0].productList);
+
+              offset = widget.section_model.offset + perPage;
+
+              widget.section_model.offset = offset;
+              widget.section_model.totalItem = total;
+            }
+          } else {
+            isLoadingmore = false;
+            if (msg != 'Sections not found') setSnackbar(msg);
+          }
+
+          if (mounted)
+            setState(() {
+              isLoadingmore=false;
+              _isLoading = false;
+            });
+        } on TimeoutException catch (_) {
+          setSnackbar(getTranslated(context, 'somethingMSg'));
+          if (mounted)
+            setState(() {
+              isLoadingmore=false;
+              _isLoading = false;
+            });
+        }
       }
     } else {
       if (mounted)
         setState(() {
           _isNetworkAvail = false;
+          isLoadingmore = false;
         });
     }
 

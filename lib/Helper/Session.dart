@@ -443,7 +443,7 @@ String getToken() {
       issuedAt: DateTime.now().toUtc());
 
   String token = issueJwtHS256(claimSet, jwtKey);
-  // print("Tokem****$token");
+
   return token;
 }
 

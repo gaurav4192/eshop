@@ -2451,6 +2451,8 @@ class StateCart extends State<Cart> with TickerProviderStateMixin {
         Response response =
             await post(placeOrderApi, body: parameter, headers: headers)
                 .timeout(Duration(seconds: timeOut));
+
+
        _placeOrder = true;
         if (response.statusCode == 200) {
           var getdata = json.decode(response.body);
